@@ -1,0 +1,220 @@
+name:                noise
+version:             0.0.0.0
+category:            Cryptography, Networking
+license:             MIT
+synopsis:            Usable security for the internet, Deux
+homepage:            http://thoughtpolice.github.com/hs-noise
+bug-reports:         http://github.com/thoughtpolice/hs-noise/issues
+license-file:        LICENSE.txt
+copyright:           Copyright (c) Austin Seipp 2014
+author:              Austin Seipp
+maintainer:          Austin Seipp <aseipp@pobox.com>
+build-type:          Custom
+cabal-version:       >=1.10
+tested-with:         GHC == 7.6.2
+
+description:
+  Noise is a pair of cryptographic protocols for protecting
+  communications and interactive sessions using high speed
+  elliptic-curve cryptography. Noise provides boxes for standalone
+  messages, and pipes for interactive sessions. This package provides
+  a very high level interface to encrypted boxes, and encrypted pipes
+  based on a simple @network@ like API, or an @io-streams@ based API.
+  .
+  This protocol has many favorable security and usability properties,
+  including: simplicity, high speed, fast and completely encrypted
+  handshakes, identity hiding, one roundtrip for sending data, active
+  and sender forward secrecy, padding (to thwart plaintext length
+  analysis), anonymity, and strong deniability. In addition, this
+  package comes with easy to use X509 certificate verification for the
+  handshake.
+  .
+  Import "Crypto.Encrypt.Noise" and "Crypto.Network.Noise" to
+  use. Read "Crypto.Noise.Tutorial" for more
+  information. Additionally, "Crypto.Noise.Protocol" has extensive
+  documentation about the underlying implementation.
+  .
+  For more information, visit <https://github.com/trevp/noise/wiki>.
+extra-source-files:
+  .travis.yml
+  AUTHORS.txt
+  README.md
+  CONTRIBUTING.md
+  CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/thoughtpolice/hs-noise.git
+
+-------------------------------------------------------------------------------
+-- Flags
+
+flag test-specs
+  default: True
+  manual: True
+
+flag test-doctests
+  default: True
+  manual: True
+
+flag test-hlint
+  default: True
+  manual: True
+
+flag threaded
+  default: True
+  manual: True
+
+flag llvm
+  default: False
+  manual: True
+
+flag optimized
+  default: True
+  manual: True
+
+-------------------------------------------------------------------------------
+-- Build pt 1: main project
+
+library
+  build-depends:
+    base               >= 4    && < 5,
+    bytestring         >= 0.9  && < 0.11,
+    cereal             >= 0.4  && < 0.5,
+    data-default-class >= 0.0  && < 0.1,
+    exceptions         >= 0.3  && < 0.4,
+    io-streams         >= 1.1  && < 1.2,
+    mwc-random         >= 0.13 && < 0.14,
+    nacl               >= 0.0  && < 0.1,
+    network            >= 2.4  && < 2.5,
+    network-simple     >= 0.3  && < 0.4,
+    pem                >= 0.2  && < 0.3,
+    transformers       >= 0.3  && < 0.4,
+    x509               >= 1.4  && < 1.5,
+    x509-system        >= 1.4  && < 1.5,
+    x509-validation    >= 1.5  && < 1.6
+
+  exposed-modules:
+    Crypto.Encrypt.Noise
+    Crypto.Network.Noise
+    Crypto.Noise.Key
+    Crypto.Noise.Protocol
+    Crypto.Noise.Tutorial
+  other-modules:
+    Crypto.Noise.Internal
+
+  if flag(optimized)
+    ghc-options: -O2
+
+  if flag(threaded)
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
+
+  if flag(llvm)
+    ghc-options: -fllvm
+
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     src
+
+-------------------------------------------------------------------------------
+-- Build pt 2: Tests
+
+test-suite specs
+  type: exitcode-stdio-1.0
+  main-is: specs.hs
+  ghc-options: -w
+  hs-source-dirs: tests
+  default-language: Haskell2010
+
+  if flag(threaded)
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
+
+  if flag(llvm)
+    ghc-options: -fllvm
+
+  if !flag(test-specs)
+    buildable: False
+  else
+    build-depends:
+      base,
+      bytestring,
+      noise,
+      mwc-random         >= 0.13 && < 0.14,
+      QuickCheck         >= 2.4 && < 2.8,
+      hspec              >= 1.8 && < 1.9
+
+--
+-- Style/doc tests below
+--
+
+test-suite hlint
+  type: exitcode-stdio-1.0
+  main-is: hlint.hs
+  ghc-options: -w
+  hs-source-dirs: tests
+  default-language:   Haskell2010
+
+  if flag(threaded)
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
+
+  if flag(llvm)
+    ghc-options: -fllvm
+
+  if !flag(test-hlint)
+    buildable: False
+  else
+    build-depends:
+      base,
+      hlint >= 1.7
+
+test-suite doctests
+  type:           exitcode-stdio-1.0
+  main-is:        doctests.hs
+  ghc-options:    -Wall
+  hs-source-dirs: tests
+  default-language:   Haskell2010
+
+  if flag(threaded)
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
+
+  if flag(llvm)
+    ghc-options: -fllvm
+
+  if !flag(test-doctests)
+    buildable: False
+  else
+    build-depends:
+      base,
+      bytestring,
+      containers,
+      directory      >= 1.0,
+      deepseq,
+      doctest        >= 0.9.1,
+      filepath,
+      semigroups     >= 0.9
+
+  if impl(ghc<7.6.1)
+    ghc-options: -Werror
+
+-------------------------------------------------------------------------------
+-- Build pt 3: benchmarks
+
+benchmark bench1
+  type:               exitcode-stdio-1.0
+  build-depends:
+    base >= 4 && < 5,
+    criterion,
+    noise
+
+  if flag(optimized)
+    ghc-options: -O2
+
+  if flag(threaded)
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
+
+  if flag(llvm)
+    ghc-options: -fllvm
+
+  default-language:   Haskell2010
+  hs-source-dirs:     benchmarks
+  main-is:            bench1.hs
