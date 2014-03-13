@@ -1,55 +1,29 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Crypto.Encrypt.Noise</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
 window.onload = function () {pageLoad();setSynopsis("mini_Crypto-Encrypt-Noise.html");};
 //]]>
-</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">noise-0.0.0.0: Usable security for the internet, Deux</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Portability</th><td>portable</td></tr><tr><th>Stability</th><td>unstable</td></tr><tr><th>Maintainer</th><td>aseipp@pobox.com</td></tr><tr><th>Safe Haskell</th><td>None</td></tr></table><p class="caption">Crypto.Encrypt.Noise</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">Noise boxes
-</a><ul><li><a href="#g:2">Opening boxes
-</a></li></ul></li></ul></div><div id="description"><p class="caption">Description</p><div class="doc"><p>Noise module for boxes. Boxes encrypt standalone messages to a
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">noise-0.0.0.0: Usable security for the internet, Deux</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Copyright</th><td>(c) Austin Seipp 2014</td></tr><tr><th>License</th><td>MIT</td></tr><tr><th>Maintainer</th><td>aseipp@pobox.com</td></tr><tr><th>Stability</th><td>unstable</td></tr><tr><th>Portability</th><td>portable</td></tr><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Crypto.Encrypt.Noise</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">Noise boxes</a><ul><li><a href="#g:2">Opening boxes</a></li></ul></li></ul></div><div id="description"><p class="caption">Description</p><div class="doc"><p>Noise module for boxes. Boxes encrypt standalone messages to a
  receiver's public key. To encrypt a message in a box, use the
- <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code> and <code><code><a href="Crypto-Encrypt-Noise.html#v:open">open</a></code></code> primitives.
-</p><p>This module exports a simple, high-level interface for
+ <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code> and <code><code><a href="Crypto-Encrypt-Noise.html#v:open">open</a></code></code> primitives.</p><p>This module exports a simple, high-level interface for
  communicating with boxes securely and easily. For a full tutorial,
- see <a href="Crypto-Noise-Tutorial.html">Crypto.Noise.Tutorial</a>.
-</p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"><li class="src short"><a href="#v:seal">seal</a> :: Maybe <a href="Crypto-Noise-Key.html#t:KeyPair">KeyPair</a> -&gt; <a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a> -&gt; Word32 -&gt; ByteString -&gt; IO ByteString</li><li class="src short"><a href="#v:open">open</a> :: <a href="Crypto-Noise-Key.html#t:SecretKey">SecretKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a> -&gt; Maybe (<a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a>) -&gt; ByteString -&gt; Maybe ByteString</li></ul></div><div id="interface"><h1 id="g:1">Noise boxes
-</h1><div class="doc"><p>Noise boxes encrypt standalone messages to a receiver identified by a
-public key. When used, they have the following properties:
-</p><dl><dt><code>Sender forward secret</code></dt><dd> After encryption of a Noise box, only the
-recipient can decrypt it (the sender cannot).
-</dd><dt><code>Deniable</code></dt><dd> The recipient of a Noise box can authenticate the
+ see <a href="Crypto-Noise-Tutorial.html">Crypto.Noise.Tutorial</a>.</p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"><li class="src short"><a href="#v:seal">seal</a> :: <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#t:Maybe">Maybe</a> <a href="Crypto-Noise-Key.html#t:KeyPair">KeyPair</a> -&gt; <a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a> -&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Word.html#t:Word32">Word32</a> -&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a> -&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/System-IO.html#t:IO">IO</a> <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></li><li class="src short"><a href="#v:open">open</a> :: <a href="Crypto-Noise-Key.html#t:SecretKey">SecretKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a> -&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#t:Maybe">Maybe</a> (<a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a>) -&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a> -&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#t:Maybe">Maybe</a> <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></li></ul></div><div id="interface"><h1 id="g:1">Noise boxes</h1><div class="doc"><p>Noise boxes encrypt standalone messages to a receiver identified by a
+public key. When used, they have the following properties:</p><dl><dt><code>Sender forward secret</code></dt><dd>After encryption of a Noise box, only the
+recipient can decrypt it (the sender cannot).</dd><dt><code>Deniable</code></dt><dd>The recipient of a Noise box can authenticate the
 sender, but cannot produce digitally-signed evidence binding the
-sender to anything.
-</dd><dt><code>Identity hiding</code></dt><dd> Noise boxes reveal no information about the
-sender or recipient to a 3rd-party observer.
-</dd><dt><code>High speed</code></dt><dd> Noise usues high-speed curves and ciphers designed by
-Dan Bernstein.
-</dd><dt><code>Padded</code></dt><dd> Noise ciphertext can be padded to avoid leaking
-plaintext lengths.
-</dd><dt><code>Built on &quot;Encrypt-then-MAC&quot; authenticated encryption</code></dt><dd> Any
+sender to anything.</dd><dt><code>Identity hiding</code></dt><dd>Noise boxes reveal no information about the
+sender or recipient to a 3rd-party observer.</dd><dt><code>High speed</code></dt><dd>Noise usues high-speed curves and ciphers designed by
+Dan Bernstein.</dd><dt><code>Padded</code></dt><dd>Noise ciphertext can be padded to avoid leaking
+plaintext lengths.</dd><dt><code>Built on &quot;Encrypt-then-MAC&quot; authenticated encryption</code></dt><dd>Any
 tampering with ciphertext will cause the recipient to reject the
-ciphertext prior to decryption.
-</dd></dl><p>Internally, Noise uses SHA512, ChaCha20/8, Poly1305, and an ECDHE
+ciphertext prior to decryption.</dd></dl><p>Internally, Noise uses SHA512, ChaCha20/8, Poly1305, and an ECDHE
 function. (As of this writing, this package uses Curve25519. The true
 specification mandates Curve41417, which features a higher, &gt; 200 bit
-security level.)
-</p></div><div class="top"><p class="src"><a name="v:seal" class="def">seal</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: Maybe <a href="Crypto-Noise-Key.html#t:KeyPair">KeyPair</a></td><td class="doc"><p>Sender keys
-</p></td></tr><tr><td class="src">-&gt; <a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a></td><td class="doc"><p>Receiver public key
-</p></td></tr><tr><td class="src">-&gt; Word32</td><td class="doc"><p>Padding length
-</p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc"><p>Plaintext
-</p></td></tr><tr><td class="src">-&gt; IO ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encrypt a piece of data under a keypair for a specific
+security level.)</p></div><div class="top"><p class="src"><a name="v:seal" class="def">seal</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#t:Maybe">Maybe</a> <a href="Crypto-Noise-Key.html#t:KeyPair">KeyPair</a></td><td class="doc"><p>Sender keys</p></td></tr><tr><td class="src">-&gt; <a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a></td><td class="doc"><p>Receiver public key</p></td></tr><tr><td class="src">-&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Word.html#t:Word32">Word32</a></td><td class="doc"><p>Padding length</p></td></tr><tr><td class="src">-&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></td><td class="doc"><p>Plaintext</p></td></tr><tr><td class="src">-&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/System-IO.html#t:IO">IO</a> <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Encrypt a piece of data under a keypair for a specific
  receiver. The optional padding length specifies how much extra
  random data the underlying box will be padded with. A box adds a
- minimum of 100 bytes of overhead to the payload.
-</p><p>Box lengths are not encoded in the output of standalone messages -
+ minimum of 100 bytes of overhead to the payload.</p><p>Box lengths are not encoded in the output of standalone messages -
  you must encode them some other way after encrypting your data with
  <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code> (e.g. explicitly in the encoding, or by using the file
- length).
-</p><p>Note that the sender and receiver of a box, or either end of a pipe,
- may be anonymous.
-</p></div></div><h2 id="g:2">Opening boxes
-</h2><div class="top"><p class="src"><a name="v:open" class="def">open</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: <a href="Crypto-Noise-Key.html#t:SecretKey">SecretKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a></td><td class="doc"><p>Receiver secret key
-</p></td></tr><tr><td class="src">-&gt; Maybe (<a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a>)</td><td class="doc"><p>Sender public key (optional)
-</p></td></tr><tr><td class="src">-&gt; ByteString</td><td class="doc"><p>Ciphertext
-</p></td></tr><tr><td class="src">-&gt; Maybe ByteString</td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Open an encrypted box created with <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code> using a secret key,
- optionally authenticating against a known public key of the sender.
-</p><p>If the secret key of the sender is provided (i.e. they are not
- anonymous), then a box sent by any other sender will fail to open.
-</p></div></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.13.2.1</p></div></body></html>
+ length).</p><p>Note that the sender and receiver of a box, or either end of a pipe,
+ may be anonymous.</p></div></div><h2 id="g:2">Opening boxes</h2><div class="top"><p class="src"><a name="v:open" class="def">open</a></p><div class="subs arguments"><p class="caption">Arguments</p><table><tr><td class="src">:: <a href="Crypto-Noise-Key.html#t:SecretKey">SecretKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a></td><td class="doc"><p>Receiver secret key</p></td></tr><tr><td class="src">-&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#t:Maybe">Maybe</a> (<a href="Crypto-Noise-Key.html#t:PublicKey">PublicKey</a> <a href="Crypto-Noise-Key.html#t:Noise">Noise</a>)</td><td class="doc"><p>Sender public key (optional)</p></td></tr><tr><td class="src">-&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></td><td class="doc"><p>Ciphertext</p></td></tr><tr><td class="src">-&gt; <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#t:Maybe">Maybe</a> <a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></td><td class="doc empty">&nbsp;</td></tr></table></div><div class="doc"><p>Open an encrypted box created with <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code> using a secret key,
+ optionally authenticating against a known public key of the sender.</p><p>If the secret key of the sender is provided (i.e. they are not
+ anonymous), then a box sent by any other sender will fail to open.</p></div></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.14.0</p></div></body></html>

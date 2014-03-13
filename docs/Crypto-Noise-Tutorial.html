@@ -1,107 +1,68 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Crypto.Noise.Tutorial</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
 window.onload = function () {pageLoad();setSynopsis("mini_Crypto-Noise-Tutorial.html");};
 //]]>
-</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">noise-0.0.0.0: Usable security for the internet, Deux</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Portability</th><td>portable</td></tr><tr><th>Stability</th><td>experimental</td></tr><tr><th>Maintainer</th><td>aseipp@pobox.com</td></tr><tr><th>Safe Haskell</th><td>Safe-Inferred</td></tr></table><p class="caption">Crypto.Noise.Tutorial</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">Introduction
-</a><ul><li><a href="#g:2">Box API
-</a></li><li><a href="#g:3"><code>network</code> API
-</a></li><li><a href="#g:4"><code>io-streams</code> API
-</a></li><li><a href="#g:5">Padding
-</a></li><li><a href="#g:6">Initial message support
-</a><ul><li><a href="#g:7">X509 support
-</a></li></ul></li></ul></li><li><a href="#g:8">Differences from the standard
-</a></li><li><a href="#g:9">Other notes
-</a></li></ul></div><div id="description"><p class="caption">Description</p><div class="doc"><p>Noise is a suite of cryptographic protocols similar in spirit to
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">noise-0.0.0.0: Usable security for the internet, Deux</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Copyright</th><td>(c) Austin Seipp 2014</td></tr><tr><th>License</th><td>MIT</td></tr><tr><th>Maintainer</th><td>aseipp@pobox.com</td></tr><tr><th>Stability</th><td>experimental</td></tr><tr><th>Portability</th><td>portable</td></tr><tr><th>Safe Haskell</th><td>Safe-Inferred</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Crypto.Noise.Tutorial</p></div><div id="table-of-contents"><p class="caption">Contents</p><ul><li><a href="#g:1">Introduction</a><ul><li><a href="#g:2">Box API</a></li><li><a href="#g:3"><code>network</code> API</a></li><li><a href="#g:4"><code>io-streams</code> API</a></li><li><a href="#g:5">Padding</a></li><li><a href="#g:6">Initial message support</a><ul><li><a href="#g:7">X509 support</a></li></ul></li></ul></li><li><a href="#g:8">Differences from the standard</a></li><li><a href="#g:9">Other notes</a></li></ul></div><div id="description"><p class="caption">Description</p><div class="doc"><p>Noise is a suite of cryptographic protocols similar in spirit to
  NaCl's <code>crypto_box</code>, or network solutions like TLS, but simpler,
  faster, with higher-security elliptic-curve cryptography, and
- stronger guarantees about deniability and identity hiding.
-</p><p>This protocol has many favorable security and usability properties,
- including:
-</p><dl><dt><code>Sender forward secrecy</code></dt><dd> After encryption of a Noise box, only the
- recipient can decrypt it (the sender cannot).
-</dd><dt><code>Deniable</code></dt><dd> The recipient of a Noise box can authenticate the
+ stronger guarantees about deniability and identity hiding.</p><p>This protocol has many favorable security and usability properties,
+ including:</p><dl><dt><code>Sender forward secrecy</code></dt><dd>After encryption of a Noise box, only the
+ recipient can decrypt it (the sender cannot).</dd><dt><code>Deniable</code></dt><dd>The recipient of a Noise box can authenticate the
  sender, but cannot produce digitally-signed evidence binding the
- sender to anything.
-</dd><dt><code>Identity hiding</code></dt><dd> Noise boxes reveal no information about the
- sender or recipient to a 3rd-party observer.
-</dd><dt><code>High speed</code></dt><dd> Noise usues high-speed curves and ciphers designed by
- Dan Bernstein.
-</dd><dt><code>Padded</code></dt><dd> Noise ciphertext can be padded to avoid leaking
- plaintext lengths.
-</dd><dt><code>Built on &quot;Encrypt-then-MAC&quot; authenticated encryption</code></dt><dd> Any
+ sender to anything.</dd><dt><code>Identity hiding</code></dt><dd>Noise boxes reveal no information about the
+ sender or recipient to a 3rd-party observer.</dd><dt><code>High speed</code></dt><dd>Noise usues high-speed curves and ciphers designed by
+ Dan Bernstein.</dd><dt><code>Padded</code></dt><dd>Noise ciphertext can be padded to avoid leaking
+ plaintext lengths.</dd><dt><code>Built on &quot;Encrypt-then-MAC&quot; authenticated encryption</code></dt><dd>Any
  tampering with ciphertext will cause the recipient to reject the
- ciphertext prior to decryption.
-</dd></dl><p>Noise pipes are built on Noise boxes and designed for interactive
+ ciphertext prior to decryption.</dd></dl><p>Noise pipes are built on Noise boxes and designed for interactive
  communications, and in addition to the above, Noise pipes offer the
- following benefits:
-</p><dl><dt><code>Full forward secrecy or <em>full key erasure</em></code></dt><dd> Compromise of any
+ following benefits:</p><dl><dt><code>Full forward secrecy or <em>full key erasure</em></code></dt><dd>Compromise of any
  long-term private keys never compromises old pipes. But furthermore,
  compromise of an <em>active</em> endpoint in an ongoinng communication does
  not compromise prior ciphertexts either - a Noise pipe forgets its
- chain secrets upon every message.
-</dd><dt><code>Resistance to key-compromise impersonation</code></dt><dd> Even with a
+ chain secrets upon every message.</dd><dt><code>Resistance to key-compromise impersonation</code></dt><dd>Even with a
  compromised private key, the compromised party can still verify other
- parties' identities in a Noise pipe.
-</dd><dt><code>Efficient, encrypted handshakes with short roundtrip</code></dt><dd> Handshakes
+ parties' identities in a Noise pipe.</dd><dt><code>Efficient, encrypted handshakes with short roundtrip</code></dt><dd>Handshakes
  allow clients and servers to communicate after only one round trip,
- offering room for validation checks or certificates.
-</dd></dl><p>This package offers:
-</p><dl><dt><code>A high-level box API</code></dt><dd> Boxes are created using the simple
-   <code><code><a href="Crypto-Encrypt-Noise.html#t:seal">seal</a></code></code> and <code><code><a href="Crypto-Encrypt-Noise.html#t:open">open</a></code></code>
+ offering room for validation checks or certificates.</dd></dl><p>This package offers:</p><dl><dt><code>A high-level box API</code></dt><dd>Boxes are created using the simple
+   <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code> and <code><code><a href="Crypto-Encrypt-Noise.html#v:open">open</a></code></code>
    primitives. Boxes are encrypted, authenticated, and optionally
    anonymous. Furthermore, boxes are <em>forward secret</em>: only the
-   receiver (identified by the receiving public key) can open them.
-</dd><dt><code>A simplistic networking API</code></dt><dd> Noise pipes can be utilized
+   receiver (identified by the receiving public key) can open them.</dd><dt><code>A simplistic networking API</code></dt><dd>Noise pipes can be utilized
    easily on top of TCP sockets using the
-   <code><code><a href="Crypto-Network-Noise.html#t:connect">connect</a></code></code> and
-   <code><code><a href="Crypto-Network-Noise.html#t:serve">serve</a></code></code> primitives. This makes it easy to
+   <code><code><a href="Crypto-Network-Noise.html#v:connect">connect</a></code></code> and
+   <code><code><a href="Crypto-Network-Noise.html#v:serve">serve</a></code></code> primitives. This makes it easy to
    write networking services with transparent encryption support,
-   built on familiar <code><code><a href="Crypto-Network-Noise.html#t:send">send</a></code></code> and
-   <code><code><a href="Crypto-Network-Noise.html#t:recv">recv</a></code></code> primitives.
-</dd><dt><code>A high-level io-streams API</code></dt><dd> The networking API internally is
+   built on familiar <code><code><a href="Crypto-Network-Noise.html#v:send">send</a></code></code> and
+   <code><code><a href="Crypto-Network-Noise.html#v:recv">recv</a></code></code> primitives.</dd><dt><code>A high-level io-streams API</code></dt><dd>The networking API internally is
    built off a high-level API based on <code>io-streams</code>, which makes
    encrypting data over a pipe as easy as reading/writing to an
-   <code><code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code></code> or
-   <code><code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code>. This also integrates with the
+   <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code></code> or
+   <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code>. This also integrates with the
    networking API, making it easy to layer in extra transformations
-   (compression, a high level packet format, etc).
-</dd><dt><code>X509 certificate support</code></dt><dd> This package makes it easy for noise
+   (compression, a high level packet format, etc).</dd><dt><code>X509 certificate support</code></dt><dd>This package makes it easy for noise
    pipes to automatically validate X509 certificates as part of the
    handshake. Parties can begin exchanging data after only one round
    trip. In this case, the certificate is offered, which is
-   validated before continuing.
-</dd></dl><p>For more information visit <a href="https://github.com/trevp/noise/wiki">https://github.com/trevp/noise/wiki</a>.
-</p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"></ul></div><div id="interface"><h1 id="g:1">Introduction
-</h1><div class="doc"><p>The <code>noise</code> package defines two sets of APIs: boxes and pipes. Boxes
-handle standalone messages, and pipes encrypt communication channels.
-</p><p>To begin, a sender and a receiver must create a keypair:
-</p><p><code>
-sender</code>(senderPK, senderSK)       &lt;- <code><a href="Crypto-Noise-Key.html#t:createKeypair">createKeypair</a></code>
-receiver<code>(receiverPK, receiverSK) &lt;- <code><a href="Crypto-Noise-Key.html#t:createKeypair">createKeypair</a></code>
-</code>
-</p><p>Send the public keys around, and keep the private keys safe.
-</p></div><h2 id="g:2">Box API
-</h2><div class="doc"><p>Boxes are created using <code><code><a href="Crypto-Encrypt-Noise.html#t:seal">seal</a></code></code>, and opened
-using <code><code><a href="Crypto-Encrypt-Noise.html#t:open">open</a></code></code>:
-</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>b &lt;- seal (Just sender) receiverPK 32 $ pack &quot;Hello world!&quot;
+   validated before continuing.</dd></dl><p>For more information visit <a href="https://github.com/trevp/noise/wiki">https://github.com/trevp/noise/wiki</a>.</p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"></ul></div><div id="interface"><h1 id="g:1">Introduction</h1><div class="doc"><p>The <code>noise</code> package defines two sets of APIs: boxes and pipes. Boxes
+handle standalone messages, and pipes encrypt communication channels.</p><p>To begin, a sender and a receiver must create a keypair:</p><pre>sender<code>(senderPK, senderSK)       &lt;- <code><a href="Crypto-Noise-Key.html#v:createKeypair">createKeypair</a></code>
+receiver</code>(receiverPK, receiverSK) &lt;- <code><a href="Crypto-Noise-Key.html#v:createKeypair">createKeypair</a></code>
+</pre><p>Send the public keys around, and keep the private keys safe.</p></div><h2 id="g:2">Box API</h2><div class="doc"><p>Boxes are created using <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code>, and opened
+using <code><code><a href="Crypto-Encrypt-Noise.html#v:open">open</a></code></code>:</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>b &lt;- seal (Just sender) receiverPK 32 $ pack &quot;Hello world!&quot;
 </code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>print $ open receiverSK (Just senderPK) b
 </code></strong>Just &quot;Hello world!&quot;
 </pre><p>When creating a box, you specify the sending keypair, the receiving
 public key, the amount of random padding you want (to obscure the
 plaintext length), and the message. To open it, you specify the secret
-key of the receiving party, and the public key of the sender.
-</p><p>Attempting to open a box from someone other than the sender will
-result in failure.
-</p><p>Senders may also be <em>anonymous</em>, where the sender does not specify a
-long-term key pair:
-</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>b &lt;- seal Nothing receiverPK 32 $ pack &quot;Hello world!&quot;
+key of the receiving party, and the public key of the sender.</p><p>Attempting to open a box from someone other than the sender will
+result in failure.</p><p>Senders may also be <em>anonymous</em>, where the sender does not specify a
+long-term key pair:</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>b &lt;- seal Nothing receiverPK 32 $ pack &quot;Hello world!&quot;
 </code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>print $ open receiverSK Nothing b
 </code></strong>Just &quot;Hello world!&quot;
 </pre><p>In the above example, the sender of the box is anonymous without a
 keypair, and attempting to use a value other than <code>Nothing</code> as the key
 will error. When the sender is anonymous, they are only identified by
 a short-term ephemeral key, which is used only once for the
-corresponding box.
-</p><p>Once you have encrypted a value using <code><code><a href="Crypto-Encrypt-Noise.html#t:seal">seal</a></code></code>,
+corresponding box.</p><p>Once you have encrypted a value using <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code>,
 it can only be decrypted by the receiving party with the secret
 key. This property means that boxes are <em>forward secret</em>: once you are
 done creating them and have 'forgotten' the message, you cannot
@@ -109,154 +70,286 @@ recover it. Furthermore, boxes are <em>deniable</em>: a recipient of a box
 can authenticate the sender. But they cannot produce signed evidence
 binding the sender to anything. Finally, boxes do not produce any
 evidence of who created them or who the receiver is, and resist
-tampering with a strong MAC.
-</p></div><h2 id="g:3"><code>network</code> API
-</h2><h2 id="g:4"><code>io-streams</code> API
-</h2><h2 id="g:5">Padding
-</h2><div class="doc"><p>All messages in a noise pipe may optionally be padded to help prevent
+tampering with a strong MAC.</p></div><h2 id="g:3"><code>network</code> API</h2><div class="doc"><p><code>noise</code> provides a simple, high-level networking API by default that
+closely mimmicks the traditional <code>network</code> API, but is more convenient
+to use as it will control closing sockets, and handle exception
+handling.</p><p>To start a server in the most simple case, all you need is the
+<code><code><a href="Crypto-Network-Noise.html#v:serve">serve</a></code></code> primitive, with a default
+configuration:</p><pre><code><a href="Crypto-Network-Noise.html#v:serve">serve</a></code> (<code><a href="Crypto-Network-Noise.html#t:Host">Host</a></code> &quot;127.0.0.1&quot;) &quot;9123&quot; <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> $ \(ctx, remoteAddr) -&gt; do
+  putStrLn $ &quot;Noise connection established from &quot; ++ show remoteAddr
+  <code><a href="Crypto-Network-Noise.html#v:send">send</a></code> ctx $ <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString-Char8.html#v:pack">pack</a></code> &quot;Hello world!&quot;
+</pre><p>Next, you can connect a client and use the familiar
+<code><code><a href="Crypto-Network-Noise.html#v:send">send</a></code></code> and <code><code><a href="Crypto-Network-Noise.html#v:recv">recv</a></code></code>
+primitives to talk over the handle:</p><pre><code><a href="Crypto-Network-Noise.html#v:connect">connect</a></code> &quot;www.example.org&quot; &quot;9123&quot; <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> $ \(ctx, remoteAddr) -&gt; do
+  putStrLn $ &quot;Connection established to &quot; ++ show remoteAddr
+  msg &lt;- <code><a href="Crypto-Network-Noise.html#v:recv">recv</a></code> ctx
+  putStrLn $ &quot;Got message: &quot; ++ show msg
+</pre><p>You're done! Both ends are completely encrypted. Furthermore, the
+server can accept many incoming concurrent connections.</p><p>In the above example (and by default), pipes are <em>anonymous</em> like
+Noise boxes - parties are only identified by short-term ephemeral
+keys. This is the default configuration in the above example, with no
+extra options needed. Unlike boxes (which obviously require a key to
+open), <em>both</em> sides of a Noise pipe can function anonymously, or only
+one of them can (servers or clients). In all cases, pipes are
+authenticated to the specified parties keys only (long term or
+ephemeral). This makes Noise as easy to use as an unencrypted TCP
+socket (and easier than TLS even), while offering considerably better
+security in all aspects.</p><p>Note that without long-term keys, you can still be affected by a
+Man-in-the-Middle attack - attackers can intercept your packets, and
+give you a short-term ephemeral key claiming to be another party. But
+unlike protocols such as CurveCP, Noise does not <em>require</em> long-term
+identies for services, nor clients: identification and authentication
+is flexible (as we'll see later).</p><p>Anonymous clients and servers do have a bonus: they cut down on the
+required number of key exchanges. Underneath, Noise uses a &quot;Triple
+Diffie-Hellman&quot; agreement that does a 3-way DHE exchange (this 3DHE
+construction is the secret behind Noise's deniability, simplicity, and
+power). If either side of a particular pipe is anonymous, this count
+is reduced to two or even one during the initial handshake.</p><p>If you'd like to authenticate clients or servers with long-term public
+keys, you only need to specify this in the configuration, after
+sharing public keys however you want (over the phone, in meatspace, or
+with an Instagr.am picture). First, generate the long-term keys:</p><pre>(public, private) &lt;- <code><a href="Crypto-Noise-Key.html#v:createKeypair">createKeypair</a></code>
+</pre><p>Keep the private key somewhere safe. It's only 32 bytes long, so it
+isn't exactly huge. Distribute the public key to whoever needs it.</p><p>Once you've done that, just specify the keys in your
+configuration. For example, to specify the long-term keys for the
+server:</p><pre>let sconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code>
+              { <code><a href="Crypto-Network-Noise.html#v:confKeypair">confKeypair</a></code> = Just (public, private)
+              }
+</pre><p>and use <code><code><a href="Crypto-Network-Noise.html#v:serve">serve</a></code></code> as usual.</p><p>Next, make the the client specifies the server's long-term public key
+in its connection:</p><pre>serverPublicKey &lt;- <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#v:readFile">readFile</a></code> &quot;keys/ServerKey.pk&quot;
+let cconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code>
+              { <code><a href="Crypto-Network-Noise.html#v:confExpectedKey">confExpectedKey</a></code> = Just serverPublicKey
+              }
+</pre><p>Any attempt to connect to a server not identified by this public key
+will be rejected.</p><p>You can also do this in reverse: a client can have a long-term key and
+a server will only accept connections from this key. Likewise, any
+client connections not identified by this key are rejected:</p><pre>let sconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code>
+              { <code><a href="Crypto-Network-Noise.html#v:confExpectedKey">confExpectedKey</a></code> = Just clientPublicKey
+              }
+
+let cconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code>
+              { <code><a href="Crypto-Network-Noise.html#v:confKeypair">confKeypair</a></code> = Just (public, private)
+              }
+</pre><p>Naturally, combining the two results in a fully authenticated tunnel.</p><p>Note that if a server expects a particular client identified by a
+long-term key, in most cases little point in using
+<code><code><a href="Crypto-Network-Noise.html#v:serve">serve</a></code></code> as it continuously serves
+connections. If you want single connections, you can use the
+<code><code><a href="Crypto-Network-Noise.html#v:listen">listen</a></code></code> and <code><code><a href="Crypto-Network-Noise.html#v:accept">accept</a></code></code>
+primitives instead.</p></div><h2 id="g:4"><code>io-streams</code> API</h2><div class="doc"><p>The networking API is powered underneath by the <code>io-streams</code> API,
+which you can use to build your own Noise pipes over any
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code></code> and
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code>. This transformation takes existing
+streams, does the negotiation over them, and returns the resulting
+encrypted streams.</p><p>A noise pipe comes in two flavors: a server pipe, and a client
+pipe. At the end of the day, there isn't really a difference between
+the two: it's just a matter of having the two duplex channels. To
+create a server pipe, first specify your
+<code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code>, then use
+<code><code><a href="Crypto-Network-Noise.html#v:pipeServerStream">pipeServerStream</a></code></code>, given an
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code></code> and
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code>:</p><pre>(decryptedInput, encryptedOut) &lt;- <code><a href="Crypto-Network-Noise.html#v:pipeServerStream">pipeServerStream</a></code> <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> (in, out)
+</pre><p>Given the two streams <code>in</code> and <code>out</code>,
+<code><code><a href="Crypto-Network-Noise.html#v:pipeServerStream">pipeServerStream</a></code></code> returns two streams which
+when read from/written to, encrypt/decrypt the specified data, and
+write it to the original streams. In other words,
+<code><code><a href="Crypto-Network-Noise.html#v:pipeServerStream">pipeServerStream</a></code></code> transforms streams which
+take encrypted data and turns them into streams which take unencrypted
+data.</p><p>Note that every individual value which you <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#v:write">write</a></code></code>
+down the <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code>, an individual message is
+created and written for it.</p><p>For example, with the above combinator, you can turn a
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/network-2.4.2.2/html/Network-Socket.html#t:Socket">Socket</a></code></code> into an encrypted set of streams using
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Network.html#v:socketToStreams">socketToStreams</a></code></code>:</p><pre>createEncServerSocket :: <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/network-2.4.2.2/html/Network-Socket.html#t:Socket">Socket</a></code> -&gt; <code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code> -&gt; IO (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code>, <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code>)
+createEncServerSocket socket conf
+  -- 'socket' is the listening socket of a server.
+  (in, out) &lt;- (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Network.html#v:socketToStreams">socketToStreams</a></code> &gt;=&gt; <code><a href="Crypto-Network-Noise.html#v:pipeServerStream">pipeServerStream</a></code> conf) socket
+  return (in, out)
+</pre><p>Now any ingoing/outgoing traffic is transparently encrypted.</p><p>Now we can do the same with a client pipe, in the other direction:</p><pre>createEncClientSocket :: <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/network-2.4.2.2/html/Network-Socket.html#t:Socket">Socket</a></code> -&gt; <code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code> -&gt; IO (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code>, <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code>)
+createEncClientSocket socket conf
+  -- 'socket' is the socket connected to the server
+  (in, out) &lt;- (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Network.html#v:socketToStreams">socketToStreams</a></code> &gt;=&gt; <code><a href="Crypto-Network-Noise.html#v:pipeClientStream">pipeClientStream</a></code> conf) socket
+  return (in, out)
+</pre><p>With these two combinators, we can turn any already connected sockets
+into encrypted tunnels. This is very close to how the Network API in
+this package is implemented, in fact.</p><p>Once you have the underlying streams, you can also naturally layer in
+other streams. For example, to layer in a compression stream:</p><pre>zlibStreams :: Int -- ^ Compression level
+            -&gt; (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code> <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>, <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>)
+            -&gt; IO (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code> <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>, <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>)
+zlibStreams l (input, output)
+  = (,) &lt;$&gt; <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Zlib.html#v:decompress">decompress</a></code> input
+        &lt;*&gt; <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Zlib.html#v:compress">compress</a></code> (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Zlib.html#t:CompressionLevel">CompressionLevel</a></code> l) output
+
+-- Create an tunnel where any data is first compressed, then encrypted.
+createZlibEncServerSocket :: <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/network-2.4.2.2/html/Network-Socket.html#t:Socket">Socket</a></code> -&gt; <code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code> -&gt; IO (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code>, <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code>)
+createZlibEncServerSocket socket config = do
+  -- 'socket' is the listening socket of a server.
+  (in, out) &lt;- (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams-Network.html#v:socketToStreams">socketToStreams</a></code> &gt;=&gt; <code><a href="Crypto-Network-Noise.html#v:pipeServerStream">pipeServerStream</a></code> conf &gt;=&gt; zlibStreams 5) socket
+  return (in, out)
+</pre><p>In the above example, the socket is first turned into two streams, and
+then into an encrypted tunnel. Then, the <code><code>zlibStreams</code></code> function
+tranforms it so that any data is first compressed before encryption.
+After this, you can layer in any amount of other transformations you
+want: for example, your own networking protocol, or simply
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#v:connect">connect</a></code></code>ing the streams.</p><p>Note that when using pipes, the negotiation over the streams happens
+immediately: any waiting will cause the thread issuing the handshake
+to block, so if you want to handle this without waiting, be sure to
+use a timeout or the 'async' package.</p><p>Additionally, once you make a connection with
+<code><code><a href="Crypto-Network-Noise.html#v:connect">connect</a></code></code> or <code><code><a href="Crypto-Network-Noise.html#v:serve">serve</a></code></code>,
+you can pull out the <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:InputStream">InputStream</a></code></code> and
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code> to compose or transform it like
+above, using <code><code><a href="Crypto-Network-Noise.html#v:pipeContextStreams">pipeContextStreams</a></code></code>.</p></div><h2 id="g:5">Padding</h2><div class="doc"><p>All messages in a noise pipe may optionally be padded to help prevent
 plaintext length analysis on the encrypted pipe. By default, boxes
 offer no padding - while pipes offer a small amount of random
-padding, but <em>only</em> in the initial negotiation phase!
-</p><p>To control the amount of padding set in a Noise box, use the input
-parameter to <code><code><a href="Crypto-Encrypt-Noise.html#t:seal">seal</a></code></code>:
-</p><pre>
-pad &lt;- generateRandomNumberBetween 0 512
-b &lt;- <code><a href="Crypto-Encrypt-Noise.html#t:seal">seal</a></code> Nothing receiver pad msg
+padding, but <em>only</em> in the initial negotiation phase!</p><p>To control the amount of padding set in a Noise box, use the input
+parameter to <code><code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code></code>:</p><pre>pad &lt;- generateRandomNumberBetween 0 512
+b &lt;- <code><a href="Crypto-Encrypt-Noise.html#v:seal">seal</a></code> Nothing receiver pad msg
 ...
 </pre><p>This will encrypt the box and pad it with a random amount of data
 (between 0 and 512 bytes, assuming a good distribution for the number
-generator).
-</p><p>To pad the initial boxes that are exchanged in a Pipe handshake,
-you can set the <code><code><a href="Crypto-Network-Noise.html#t:confPadding">confPadding</a></code></code> parameter of the
+generator).</p><p>To pad the initial boxes that are exchanged in a Pipe handshake,
+you can set the <code><code><a href="Crypto-Network-Noise.html#v:confPadding">confPadding</a></code></code> parameter of the
 <code><code><a href="Crypto-Network-Noise.html#t:PipeConf">PipeConf</a></code></code>. For example, setting
-<code><code><a href="Crypto-Network-Noise.html#t:confPadding">confPadding</a></code> = 32</code> will pad the initial
-handshake message you send with 32 random bytes.
-</p><p>Encrypting an active Noise pipe is a little more work. In essence, you
+<code><code><a href="Crypto-Network-Noise.html#v:confPadding">confPadding</a></code> = 32</code> will pad the initial
+handshake message you send with 32 random bytes.</p><p>Encrypting an active Noise pipe is a little more work. In essence, you
 must write a function to transform an
-<code><code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code> of this type:
-</p><pre>
-f :: <code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code> -&gt; IO (<code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="Data-ByteString.html#t:ByteString">ByteString</a></code>)
-</pre><p>There is an alias for this type - <code><code><a href="Crypto-Network-Noise.html#t:PipeMsgPadder">PipeMsgPadder</a></code></code>.
-</p><p>The type <code><code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code></code> is a simple message type,
-pairing a <code><code><a href="Data-ByteString.html#t:ByteString">ByteString</a></code></code> with an integer - the number
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code></code> of this type:</p><pre>f :: <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code> -&gt; IO (<code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>)
+</pre><p>There is an alias for this type - <code><code><a href="Crypto-Network-Noise.html#t:PipeMsgPadder">PipeMsgPadder</a></code></code>.</p><p>The type <code><code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code></code> is a simple message type,
+pairing a <code><code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code></code> with an integer - the number
 of bytes to pad the message containing that buffer. You can think of
-<code><code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code></code> as
-being equivalent to <code><code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code>
-(<code><a href="Data-ByteString.html#t:ByteString">ByteString</a></code>, Int)</code>
-</p><p>The simplest transformation is
-<code><code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code></code>, which pads every message
+<code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code> <code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code></code> as
+being equivalent to <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#t:OutputStream">OutputStream</a></code>
+(<code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>, Int)</code></p><p>The simplest transformation is
+<code><code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code></code>, which pads every message
 with a constant number of random bytes. This is used internally by
-default if you don't specify your own transformation:
-</p><pre>
-<code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code> :: Word32 -&gt; <code><a href="Crypto-Network-Noise.html#t:PipeMsgPadder">PipeMsgPadder</a></code>
-<code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code> n inp = <code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:makeOutputStream">makeOutputStream</a></code> $ \v -&gt;
+default if you don't specify your own transformation:</p><pre><code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code> :: Word32 -&gt; <code><a href="Crypto-Network-Noise.html#t:PipeMsgPadder">PipeMsgPadder</a></code>
+<code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code> n inp = <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#v:makeOutputStream">makeOutputStream</a></code> $ \v -&gt;
   case v of
-    Nothing -&gt; <code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:write">write</a></code> Nothing inp
-    Just x  -&gt; <code><a href="/home/a/.cabal/share/doc/x86_64-linux-ghc-7.6.3/io-streams-1.1.4.2/html/System-IO-Streams.html#t:write">write</a></code> (Just (<code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code> x n)) inp
-</pre><p>For example, <code><code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code> 0</code> is a routine
+    Nothing -&gt; <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#v:write">write</a></code> Nothing inp
+    Just x  -&gt; <code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/io-streams-1.1.4.2/html/System-IO-Streams.html#v:write">write</a></code> (Just (<code><a href="Crypto-Network-Noise.html#t:PipeMsg">PipeMsg</a></code> x n)) inp
+</pre><p>For example, <code><code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code> 0</code> is a routine
 which will never pad any outgoing
-messages.<code><code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code> 32</code> is a routine
-which will pad every message with 32 random bytes.
-</p><p>By default, a Noise pipe uses
-<code><code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code> 0</code> internally when you do
-not specify your own padding routine.
-</p><p>In addition, there is also another routine provided -
-<code><code><a href="Crypto-Network-Noise.html#t:randomPadStream">randomPadStream</a></code></code> - which will pad every
+messages.<code><code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code> 32</code> is a routine
+which will pad every message with 32 random bytes.</p><p>By default, a Noise pipe uses
+<code><code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code> 0</code> internally when you do
+not specify your own padding routine.</p><p>In addition, there is also another routine provided -
+<code><code><a href="Crypto-Network-Noise.html#v:randomPadStream">randomPadStream</a></code></code> - which will pad every
 outgoing message with a randomly selected number of bytes (within the
-specified range).
-</p><p>Either end of a noise pipe can have their own unique padding routines
-specified without problem.
-</p><p>To specify the padding routine, simply specify it in the
-<code><code><a href="Crypto-Network-Noise.html#t:confPadder">confPadder</a></code></code> of your configuration. For
+specified range).</p><p>Either end of a noise pipe can have their own unique padding routines
+specified without problem.</p><p>To specify the padding routine, simply specify it in the
+<code><code><a href="Crypto-Network-Noise.html#v:confPadder">confPadder</a></code></code> of your configuration. For
 example, to pad every message from the client with a random number of
 bytes in the range of 0 to 32, and pad every message from the server
-with 64 random bytes, you can write:
-</p><pre>
-let sconf = <code><a href="Crypto-Network-Noise.html#t:defaultPipeConfig">defaultPipeConfig</a></code>
-              { <code><a href="Crypto-Network-Noise.html#t:confPadder">confPadder</a></code> = Just (<code><a href="Crypto-Network-Noise.html#t:constantPadStream">constantPadStream</a></code> 64)
+with 64 random bytes, you can write:</p><pre>let sconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code>
+              { <code><a href="Crypto-Network-Noise.html#v:confPadder">confPadder</a></code> = Just (<code><a href="Crypto-Network-Noise.html#v:constantPadStream">constantPadStream</a></code> 64)
               }
 
-let cconf = <code><a href="Crypto-Network-Noise.html#t:defaultPipeConfig">defaultPipeConfig</a></code>
-              { <code><a href="Crypto-Network-Noise.html#t:confPadder">confPadder</a></code> = Just (<code><a href="Crypto-Network-Noise.html#t:randomPadStream">randomPadStream</a></code> 0 32)
+let cconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code>
+              { <code><a href="Crypto-Network-Noise.html#v:confPadder">confPadder</a></code> = Just (<code><a href="Crypto-Network-Noise.html#v:randomPadStream">randomPadStream</a></code> 0 32)
               }
 </pre><p>Note that padding is, of course, not free: as the bytes are taken from
 <code>/dev/urandom</code>, in some very unscientific benchmarks, a parameter
-like <code>(<code><a href="Crypto-Network-Noise.html#t:randomPadStream">randomPadStream</a></code> 0 4096)</code> cut the speed
-of encrypting/decrypting <code>/dev/zero</code> and writing it to <code><em>dev\</em>null</code>
+like <code>(<code><a href="Crypto-Network-Noise.html#v:randomPadStream">randomPadStream</a></code> 0 4096)</code> cut the speed
+of encrypting/decrypting <code>/dev/zero</code> and writing it to <code>/dev/null</code>
 by 50% (200MB/s vs 100MB/s), with the Linux kernel's internal
-cryptographic routines dominating runtime profiles.
-</p></div><h2 id="g:6">Initial message support
-</h2><div class="doc"><p>Noise pipes have an advantage over TLS in that only one round trip is
+cryptographic routines dominating runtime profiles.</p></div><h2 id="g:6">Initial message support</h2><div class="doc"><p>Noise pipes have an advantage over TLS in that only one round trip is
 needed to start sending data - as part of the handshake, the server
-and client can exchange data inside boxes.
-</p><p>By default, servers and clients are configured to send 16 bytes of
+and client can exchange data inside boxes.</p><p>By default, servers and clients are configured to send 16 bytes of
 zeros in their boxes, and they both validate the boxes have zeros in
 the handshake. This can be changed by updating
-<code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code> before connecting.
-</p><p>This feature allows you to immediately exchange data (taking full
+<code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code> before connecting.</p><p>This feature allows you to immediately exchange data (taking full
 advantage of the early roundtrip for your application), or do more
 exotic things like certificate validation (see below for X509
-support).
-</p><p>Using this support is easy. In the <code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code>
-for both parties, you can specify two fields:
-</p><pre>
- 1 - <code><a href="Crypto-Network-Noise.html#t:confInitialMsg">confInitialMsg</a></code>      :: Maybe (IO <code><a href="Data-ByteString.html#t:ByteString">ByteString</a></code>)
- 2 - <code><a href="Crypto-Network-Noise.html#t:confInitialResponse">confInitialResponse</a></code> :: Maybe (<code><a href="Data-ByteString.html#t:ByteString">ByteString</a></code> -&gt; IO Bool)
+support).</p><p>Using this support is easy. In the <code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code>
+for both parties, you can specify two fields:</p><pre> 1 - <code><a href="Crypto-Network-Noise.html#v:confInitialMsg">confInitialMsg</a></code>      :: Maybe (IO <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code>)
+ 2 - <code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code> :: Maybe (<code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#t:ByteString">ByteString</a></code> -&gt; IO Bool)
 </pre><p>These two fields specify the initial handshake procedure (in the
-order they occur). By default, the handshake looks like:
-</p><pre>
-Step #1: Client ---- Ephemeral Key ---&gt; Server (BEGIN)
+order they occur). By default, the handshake looks like:</p><pre>Step #1: Client ---- Ephemeral Key ---&gt; Server (BEGIN)
 
-Step <a name="2: Client &lt;--- noise_box "></a>1  ---- Server (Initial server message)
+Step #2: Client &lt;--- noise_box #1  ---- Server (Initial server message)
 
-Step <a name="3: Client ---- noise_box "></a>2  ---&gt; Server (Initial client message)
+Step #3: Client ---- noise_box #2  ---&gt; Server (Initial client message)
 
 Step #4: Client &lt;---- ciphertext -----&gt; Server (Bidirectional communication)
 </pre><p>The initial server message in step #2 is specified with
-<code><code><a href="Crypto-Network-Noise.html#t:confInitialMsg">confInitialMsg</a></code></code> on the server end, and the
+<code><code><a href="Crypto-Network-Noise.html#v:confInitialMsg">confInitialMsg</a></code></code> on the server end, and the
 client checks if this is valid using
-<code><code><a href="Crypto-Network-Noise.html#t:confInitialResponse">confInitialResponse</a></code></code>. If it is, the client
+<code><code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code></code>. If it is, the client
 responds with the result of its own
-<code><code><a href="Crypto-Network-Noise.html#t:confInitialMsg">confInitialMsg</a></code></code> in step #3, and the server
+<code><code><a href="Crypto-Network-Noise.html#v:confInitialMsg">confInitialMsg</a></code></code> in step #3, and the server
 checks this message with its
-<code><code><a href="Crypto-Network-Noise.html#t:confInitialResponse">confInitialResponse</a></code></code>. If this finishes, then
+<code><code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code></code>. If this finishes, then
 the connection is established in step #4 (see <a href="Crypto-Noise-Protocol.html">Crypto.Noise.Protocol</a>
-for details).
-</p><p>Note that even if these parameters are set to <code><code>Nothing</code></code>, validation
+for details).</p><p>Note that even if these parameters are set to <code><code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#v:Nothing">Nothing</a></code></code>, validation
 always takes place: if you <em>do not</em> specify any override, or use
-<code><code>Nothing</code></code> explicitly, then the server uses the implicit default: a
+<code><code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/base-4.7.0.0/Data-Maybe.html#v:Nothing">Nothing</a></code></code> explicitly, then the server uses the implicit default: a
 payload of 16 zero bytes each way, with the validation confirming
-this.
-</p><p>This means that if you override one of the initial messages, you MUST
+this.</p><p>This means that if you override one of the initial messages, you MUST
 override the counterpart for the other party. This prevents clients
 and servers from finishing the handshake if they're incorrectly
 configured on either end. In other words, this is the default
-operation if you don't specify your own overrides:
-</p><pre>
-<code><a href="Crypto-Network-Noise.html#t:confInitialMsg">confInitialMsg</a></code>      = Just $ return (<code><a href="Data-ByteString.html#t:replicate">replicate</a></code> 16 0x0)
-<code><a href="Crypto-Network-Noise.html#t:confInitialResponse">confInitialResponse</a></code> = Just $ x -&gt; return (x == <code><a href="Data-ByteString.html#t:replicate">replicate</a></code> 16 0x0)
-</pre></div><h3 id="g:7">X509 support
-</h3><h1 id="g:8">Differences from the standard
-</h1><div class="doc"><p>Currently, this package <em>mostly</em> implements the Noise specification
-faithfully.
-</p><p>The large exception is that we use Curve25519 instead of
+operation if you don't specify your own overrides:</p><pre><code><a href="Crypto-Network-Noise.html#v:confInitialMsg">confInitialMsg</a></code>      = Just $ return (<code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#v:replicate">replicate</a></code> 16 0x0)
+<code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code> = Just $ x -&gt; return (x == <code><a href="file:///home/a/ghc-7.8-rc2/share/doc/ghc/html/libraries/bytestring-0.10.4.0/Data-ByteString.html#v:replicate">replicate</a></code> 16 0x0)
+</pre></div><h3 id="g:7">X509 support</h3><div class="doc"><p>While public keys are powerful and small, many times they are not
+convenient. There is sometimes a need for an outside authority to
+verify integrity - in <em>some</em> cases, it's often far more convenient to
+have an authority sign certificates of authenticity for an endpoint,
+instead of distributing multiple public keys for each endpoint to all
+clients.</p><p>Like mentioned above, Noise pipe authentication is also flexible - as
+both ends of a pipe can be anonymous, it's possible to use different
+authentication mechanisms to establish secure connections.</p><p>To this end, this package features simple, built in X509 validation
+using the one-roundtrip initial box discussed previously. This can be
+used to verify a server presenting a certificate to a client is signed
+by a trusted CA in the users Certificate Store.</p><p>The default routines use the system certificate store. To enable the
+certificate, specify the <code><code><a href="Crypto-Network-Noise.html#v:offerX509">offerX509</a></code></code> in the
+<code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code>.</p><pre>&gt; let sconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> { <code><a href="Crypto-Network-Noise.html#v:confInitialMsg">confInitialMsg</a></code> = Just (<code><a href="Crypto-Network-Noise.html#v:offerX509">offerX509</a></code> &quot;noise.crt&quot;) }
+</pre><p>where <code>&quot;noise.crt&quot;</code> is your certificate, signed by someone in the
+trusted store.</p><p>Next, make sure your client uses <code><code><a href="Crypto-Network-Noise.html#v:validateX509">validateX509</a></code></code>
+in its <code><code><a href="Crypto-Network-Noise.html#t:PipeConfig">PipeConfig</a></code></code>:</p><pre>&gt; let cconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> { <code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code> = Just $ <code><a href="Crypto-Network-Noise.html#v:validateX509">validateX509</a></code> (Just &quot;HOSTNAME&quot;) }
+</pre><p>where <code>&quot;HOSTNAME&quot;</code> is the FQDN specified in the certificate.</p><p>That's it. Your client will automatically check the X509 certificate
+chain when they connect, and they'll reject invalid server
+certificates. This can also work the other way around: servers can
+validate client certificates too. Combined with anonymous ends, This
+allows you to easily use different authentication methods as opposed
+to public key distribution for Noise pipes.</p><p>You can also exercise more control over the validation check, using
+the more extensive <code><code><a href="Crypto-Network-Noise.html#v:validateX509_">validateX509_</a></code></code>
+function. For example, when testing, it's often useful to use a
+self-signed certificate. You can do this quite easily by using your
+own X509 <code><code><a href="file:///home/a/.cabal/share/doc/x86_64-linux-ghc-7.8.0.20140228/x509-validation-1.5.0/html/Data-X509-Validation.html#t:ValidationCache">ValidationCache</a></code></code>. First, create a
+fingerprint of your self-signed certificate:</p><pre>$ openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -out noise.crt
+...
+$ openssl x509 -noout -sha256 -in noise.crt -fingerprint
+SHA256 Fingerprint=&lt;YOUR_FINGERPRINT&gt;
+</pre><p>(where <code>&lt;YOUR_FINGERPRINT&gt;</code> is the SHA256 fingerprint of your
+certificate).</p><p>Next, set up your <code><code><a href="Crypto-Network-Noise.html#t:ClientConfig">ClientConfig</a></code></code> to use the
+<code><code><a href="Network-X509-Validation.html#v:exceptionValidationCache">exceptionValidationCache</a></code></code>, specifying the
+service identifier and the fingerprint:</p><pre>&gt; let fp1 = Fingerprint $ B8.pack &quot;YOUR_FINGERPRINT&quot;
+      validCache = exceptionValidationCache
+        [ ((&quot;YOUR-FQDN&quot;, B.empty), fp1)
+        ]
+
+      cconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> { <code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code> = Just $ <code><code><a href="Crypto-Network-Noise.html#v:validateX509_">validateX509_</a></code></code> (Just &quot;HOSTNAME&quot;) (Just validCache) Nothing }
+</pre><p>Done! Now your clients will have an exception only for this
+fingerprint and no other self-signed certificate will
+work. Alternatively, using
+<code><code><a href="Network-X509-Validation.html#v:tofuValidationCache">tofuValidationCache</a></code></code> you can perform
+&quot;Trust On First Use&quot; (<em>TOFU</em>) validation as well, making Noise
+negotiations even more flexible.</p><p>Alternatively, you <em>can</em> override the failure check for the validation
+procedure. For example, if you want to accept <em>any</em> self-signed
+certificate (WHICH IS A BAD IDEA, MIND YOU):</p><pre>&gt; let selfSigned x = return (x == [] || x == [SelfSigned])
+      cconf = <code><a href="Crypto-Network-Noise.html#v:defaultPipeConfig">defaultPipeConfig</a></code> { <code><a href="Crypto-Network-Noise.html#v:confInitialResponse">confInitialResponse</a></code> = Just $ <code><code><a href="Crypto-Network-Noise.html#v:validateX509_">validateX509_</a></code></code> (Just &quot;HOSTNAME&quot;) Nothing (Just selfSigned) }
+</pre><p>This new configuration overrides the failure check: if there are no
+errors OR the certificate fails only due to self-signing, then the
+certificate is accepted.</p></div><h1 id="g:8">Differences from the standard</h1><div class="doc"><p>Currently, this package <em>mostly</em> implements the Noise specification
+faithfully.</p><p>The large exception is that we use Curve25519 instead of
 Curve41417. Curve41417 offers a 200-bit security level, which is
 really what Noise aims to offer (NaCl <code>crypto_box</code> routines similarly
 only offer 128-bit security). As a result, keys are only 32 bytes as
-opposed to 52 bytes.
-</p><p>In the future, this protocol will use Curve41417 by default.
-</p></div><h1 id="g:9">Other notes
-</h1><div class="doc"><p>Here are some important things to note when using this protocol:
-</p><dl><dt><code>You can't turn off the encryption</code></dt><dd> There is no way to disable
+opposed to 52 bytes.</p><p>In the future, this protocol will use Curve41417 by default.</p></div><h1 id="g:9">Other notes</h1><div class="doc"><p>Here are some important things to note when using this protocol:</p><dl><dt><code>You can't turn off the encryption</code></dt><dd>There is no way to disable
 encryption. Furthermore, the primitives should be high-speed enough to
-not negatively impact large workloads.
-</dd><dt><code>No protection against traffic analysis by default</code></dt><dd> While the
+not negatively impact large workloads.</dd><dt><code>No protection against traffic analysis by default</code></dt><dd>While the
 initial boxes feature randomized padding by default, the outgoing
 ciphertext is not padded in any way.. If you want to randomize your
 traffic a bit, use the
-<code><code><a href="Crypto-Network-Noise.html#t:randomPadStream">randomPadStream</a></code></code> transformer in your
+<code><code><a href="Crypto-Network-Noise.html#v:randomPadStream">randomPadStream</a></code></code> transformer in your
 configuration to automatically pad outgoing traffic. The underlying
 random number generator is MWC seeded from <code>/dev/urandom</code>, so it
 should be fast, and pick numbers in the specified range with a good
-distribution.
-</dd></dl></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.13.2.1</p></div></body></html>
+distribution.</dd></dl></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.14.0</p></div></body></html>
