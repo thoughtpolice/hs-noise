@@ -129,32 +129,14 @@ main = parseArgs >>= go where
   go x@(Decrypt _ _) = print x
 
   go (Connect host port) = do
-    let fp1 = Fingerprint $ B.pack [ 0x11, 0xE9, 0x67, 0x19
-                                   , 0xF3, 0x17, 0x4E, 0x7E
-                                   , 0x93, 0x82, 0xEF, 0x96
-                                   , 0xD4, 0x61, 0xBE, 0x58
-                                   , 0xBC, 0x86, 0xF3, 0x55
-                                   , 0x3C, 0x2C, 0x6A, 0xC0
-                                   , 0x47, 0x59, 0x3C, 0xF6
-                                   , 0xF3, 0x4E, 0xA7, 0x28 ]
-        validCache = exceptionValidationCache
-          [ (("www.foxdie.org", B.empty), fp1)
-          ]
-        cconf = def { confInitialResponse = Just $ validateX509_
-                                              (Just "www.foxdie.org")
-                                              (Just validCache)
-                                              Nothing
-                    }
-    connect host (show port) cconf $ \(ctx, _) -> do
+    connect host (show port) def $ \(ctx, _) -> do
       let (inp, outp) = pipeContextStreams ctx
       void $ A.race (S.connect inp S.stdout)
                     (S.connect S.stdin outp)
 
   go (Listen host port) = do
-    let sconf = def { confInitialMsg = Just (offerX509 "noise.crt")
-                    }
     listen (Host host) (show port) $ \(lsock,_) -> do
-    accept lsock sconf $ \(ctx, _) -> do
+    accept lsock def $ \(ctx, _) -> do
       let (inp, outp) = pipeContextStreams ctx
       void $ A.race (S.connect inp S.stdout)
                     (S.connect S.stdin outp)
