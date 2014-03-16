@@ -11,6 +11,7 @@
 --
 module Crypto.Noise.Internal where
 import           Data.Bits
+import           Data.Monoid
 import           Data.Serialize
 import           System.Random.MWC
 
@@ -82,7 +83,7 @@ header (Chain chain) (ephPK, ephSK) senderKeys recvPK
     dh2 = maybe dh1 (\(_,s) -> curve25519 s recvPK) senderKeys
 
     -- Key derivation, step one
-    key1 = SecretKey $ nhash (txt `B.append` dh1 `B.append` chain)
+    key1 = SecretKey $ nhash (txt <> dh1 <> chain)
       where txt = B8.pack "Noise_Box_KDF1"
 
     -- Block encryption, key derivation step two
@@ -92,14 +93,14 @@ header (Chain chain) (ephPK, ephSK) senderKeys recvPK
         , B.drop 64 block)
       where
         block = ncipher datum key1
-        datum = B.replicate 64 0x0 `B.append` (unPublicKey sendPK)
+        datum = B.replicate 64 0x0 <> (unPublicKey sendPK)
 
     -- MAC derivation
     mac = Poly1305.authenticate (SecretKey macKey) dataBlock
-      where dataBlock = (unPublicKey ephPK) `B.append` encSendPK
+      where dataBlock = (unPublicKey ephPK) <> encSendPK
 
     -- Key derivation, step three
-    key2 = Chain $ nhash (txt `B.append` dh2 `B.append` chainTmp)
+    key2 = Chain $ nhash (txt <> dh2 <> chainTmp)
       where txt = B8.pack "Noise_Box_KDF2"
 
 ciphertext :: Chain
@@ -116,12 +117,12 @@ ciphertext (Chain chain) pad hdr plaintext = do
         , B.drop 64 block)
       where
         block = ncipher datum (SecretKey chain)
-        datum =      B.replicate 64 0x0
-          `B.append` encode pad
-          `B.append` padding
-          `B.append` plaintext
+        datum = B.replicate 64 0x0
+             <> encode pad
+             <> padding
+             <> plaintext
     mac = Poly1305.authenticate (SecretKey macKey) dataBlock
-      where dataBlock = maybe B.empty encode hdr `B.append` encText
+      where dataBlock = maybe B.empty encode hdr <> encText
 
   return (Ciphertext encText mac, Chain chainOut)
 
@@ -132,7 +133,7 @@ ciphertext_ :: Chain
             -> IO (ByteString, Chain)
 ciphertext_ chain pad hdr pt = do
   (Ciphertext et (Poly1305.Auth m), chainOut) <- ciphertext chain pad hdr pt
-  return (et `B.append` m, chainOut)
+  return (et <> m, chainOut)
 
 boxInternal :: Maybe Chain
      -> KeyPair              -- ^ Ephemeral keys
@@ -147,7 +148,7 @@ boxInternal chain eph sender recvPK pad plaintext = do
   return (Box hdr ct, chainOut)
   where
     chainIn = maybe (Chain chain1) id chain
-      where chain1 = B8.pack "Noise_Box_IV" `B.append` B.replicate 32 0x0
+      where chain1 = B8.pack "Noise_Box_IV" <> B.replicate 32 0x0
 
 box_ :: Maybe Chain
      -> KeyPair
@@ -161,11 +162,11 @@ box_ chain eph sender recvPK pad plaintext = do
   let
     (Header (PublicKey hdrPK) hdrESPK (Poly1305.Auth hdrMAC)) = hdr
     (Ciphertext ct' (Poly1305.Auth ctMAC)) = ct
-    result =     hdrPK
-      `B.append` hdrESPK
-      `B.append` hdrMAC
-      `B.append` ct'
-      `B.append` ctMAC
+    result = hdrPK
+          <> hdrESPK
+          <> hdrMAC
+          <> ct'
+          <> ctMAC
   return (result, chainOut)
 
 openCiphertext :: Chain
@@ -175,7 +176,7 @@ openCiphertext :: Chain
 openCiphertext (Chain chain) hdr ct = verifyMAC
   where
     (ctxt, ctMAC) = B.splitAt (B.length ct - 16) ct
-    body = maybe B.empty id hdr `B.append` ctxt
+    body = maybe B.empty id hdr <> ctxt
 
     -- Block encryption, key derivation step two
     (chainOut, macKey2, plaintxt)
@@ -183,7 +184,7 @@ openCiphertext (Chain chain) hdr ct = verifyMAC
         , B.take 32 $ B.drop 32 block
         , B.drop 64 block)
       where
-        block = ncipher (B.replicate 64 0x0 `B.append` ctxt) (SecretKey chain)
+        block = ncipher (B.replicate 64 0x0 <> ctxt) (SecretKey chain)
 
     -- MAC verification
     verifyMAC :: Maybe (ByteString, Chain)
@@ -213,14 +214,14 @@ open_ chain recvSK sendPK encText =
     hdrMAC      = Poly1305.Auth $ B.take 16 $ B.drop 64 encText
 
     chainIn = maybe chain1 _chainBS chain
-      where chain1 = B8.pack "Noise_Box_IV" `B.append` B.replicate 32 0x0
+      where chain1 = B8.pack "Noise_Box_IV" <> B.replicate 32 0x0
 
     -- Key exchange
     dh1 = curve25519 recvSK ephPK
     dh2 = maybe dh1 (curve25519 recvSK) sendPK
 
     -- Key derivation, step one
-    key1 = SecretKey $ nhash (txt `B.append` dh1 `B.append` chainIn)
+    key1 = SecretKey $ nhash (txt <> dh1 <> chainIn)
       where txt = B8.pack "Noise_Box_KDF1"
 
     -- Block encryption, key derivation step two
@@ -237,7 +238,7 @@ open_ chain recvSK sendPK encText =
         False -> Nothing
 
     senderKey = PublicKey $ B.drop 64 (ncipher block key1)
-      where block = chainTmp `B.append` macKey `B.append` encSenderPK
+      where block = chainTmp <> macKey <> encSenderPK
 
     -- Sender key verification
     verifyDecKey :: Maybe (PublicKey Noise) -> Maybe Bool
@@ -249,7 +250,7 @@ open_ chain recvSK sendPK encText =
       | otherwise            = Nothing
 
     -- Key derivation, step three
-    key2 = Chain $ nhash (txt `B.append` dh2 `B.append` chainTmp)
+    key2 = Chain $ nhash (txt <> dh2 <> chainTmp)
       where txt = B8.pack "Noise_Box_KDF2"
 
     verifyCT :: Maybe (ByteString, Chain)
